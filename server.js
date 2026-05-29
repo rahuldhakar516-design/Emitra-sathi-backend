@@ -22,12 +22,22 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
-// Handle the root path to serve index.html from frontend
+// Handle the root path with fallback serving (essential for separate frontend/backend hosting)
 app.get('/', (req, res) => {
     try {
-        res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+        const fs = require('fs');
+        const frontendPath = path.join(__dirname, '..', 'frontend', 'index.html');
+        const backendPath = path.join(__dirname, 'cyber_cafe_backend.html');
+        
+        if (fs.existsSync(frontendPath)) {
+            res.sendFile(frontendPath);
+        } else if (fs.existsSync(backendPath)) {
+            res.sendFile(backendPath);
+        } else {
+            res.status(200).send("eMitra Sathi Backend is running smoothly!");
+        }
     } catch (err) {
-        console.error("Error serving index.html:", err);
+        console.error("Error serving root path:", err);
         res.status(500).send("Internal Server Error");
     }
 });

@@ -13,31 +13,29 @@ const DB_KEYS = [
 
 let isSyncingFromFirebase = false;
 
-// 1. Hook into Firebase value changes
+// 1. Hook into Firebase value changes on individual keys
 if (typeof db !== 'undefined' && db !== null) {
-    db.ref('/').on('value', (snap) => {
-        if (snap.exists()) {
-            isSyncingFromFirebase = true;
-            const data = snap.val();
-            let changed = false;
-
-            DB_KEYS.forEach(key => {
-                if (data[key] !== undefined && data[key] !== null) {
-                    let valStr = typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]);
-                    if (localStorage.getItem(key) !== valStr) {
+    DB_KEYS.forEach(key => {
+        db.ref(key).on('value', (snap) => {
+            if (isSyncingFromFirebase) return; // Prevent recursive trigger
+            
+            const val = snap.val();
+            if (val !== undefined && val !== null) {
+                let valStr = typeof val === 'string' ? val : JSON.stringify(val);
+                if (localStorage.getItem(key) !== valStr) {
+                    isSyncingFromFirebase = true;
+                    try {
                         originalSetItem.call(localStorage, key, valStr);
-                        changed = true;
+                        // Trigger an event for UI to update
+                        document.dispatchEvent(new Event('firebaseSynced'));
+                    } catch (e) {
+                        console.error(`Error updating local key ${key}:`, e);
+                    } finally {
+                        isSyncingFromFirebase = false;
                     }
                 }
-            });
-
-            isSyncingFromFirebase = false;
-
-            // If data changed from remote, trigger an event for UI to update
-            if (changed) {
-                document.dispatchEvent(new Event('firebaseSynced'));
             }
-        }
+        });
     });
 
     // 2. Initial Migration (Local -> Firebase)
@@ -91,15 +89,11 @@ localStorage.removeItem = function(key) {
     }
 };
 
-// Also listen to cross-tab localStorage changes (native behavior fallback)
+// 5. Native cross-tab storage changes (Only dispatch UI event, never set to Firebase)
 window.addEventListener('storage', (e) => {
     if (DB_KEYS.includes(e.key) && e.newValue !== null && !isSyncingFromFirebase) {
-        if (typeof db !== 'undefined' && db !== null) {
-            let parsedVal = e.newValue;
-            try { parsedVal = JSON.parse(e.newValue); } catch(err) {}
-            db.ref(e.key).set(parsedVal).catch(err => {});
-        }
-        // Update current tab's UI
+        // Dispatch local event immediately to update UI in current tab
         document.dispatchEvent(new Event('firebaseSynced'));
     }
 });
+
