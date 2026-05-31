@@ -358,18 +358,23 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 1024px) {
-    body {
+    html, body {
         display: block !important;
         width: 100% !important;
+        max-width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
+        overflow-x: hidden !important;
     }
     
     #backendApp {
         display: block !important;
         width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
+        overflow-x: hidden !important;
         padding: 0 !important;
         gap: 0 !important;
         background: #080c15 !important;
@@ -477,6 +482,22 @@ input:focus, select:focus, textarea:focus {
     header div {
         width: 100% !important;
         justify-content: space-between !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    /* Hide the 'Master Admin' text to fit header actions inside narrow screens */
+    header div:last-child > span:not(#headerThemeBadge) {
+        display: none !important;
+    }
+    
+    header #headerThemeBadge {
+        display: inline-flex !important;
+    }
+    
+    header #headerThemeBadge span {
+        display: inline !important;
     }
     
     .work-area {
