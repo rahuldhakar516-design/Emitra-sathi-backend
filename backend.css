@@ -311,48 +311,192 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* Responsive Design for Backend */
+/* Responsive Helper Elements */
+.sidebar-close-btn {
+    display: none;
+}
+
+.mobile-menu-toggle {
+    display: none;
+}
+
+/* Sidebar Backdrop Overlay - Made 100% transparent to keep side screen bright */
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: transparent; /* No dark dimming */
+    backdrop-filter: none; /* No blur, perfectly bright */
+    -webkit-backdrop-filter: none;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+}
+
+.table-responsive table {
+    margin-top: 0 !important;
+}
+
+.login-box {
+    max-width: 90%;
+}
+
 @media (max-width: 1024px) {
     body {
-        flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-        overflow: auto;
-        padding-top: 20px;
+        height: 100vh !important;
+        overflow: hidden !important;
     }
     
+    #backendApp {
+        display: flex !important;
+        flex-direction: row !important;
+        height: 100vh !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        background: #080c15 !important;
+    }
+    
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+    
+    /* Sidebar permanently visible on the side (175px width) */
     .sidebar {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        border-right: none;
-        border-bottom: 1px solid var(--glass-border);
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 175px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        padding: 10px 5px !important;
+        background: #0b0f19 !important; /* solid deep dark background */
+        border-right: 1px solid var(--glass-border) !important;
+        border-radius: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4) !important;
     }
     
+    .sidebar-close-btn {
+        display: none !important;
+    }
+    
+    .sidebar-backdrop {
+        display: none !important;
+    }
+    
+    /* Make brand heading small and compact */
     .brand {
-        padding: 15px;
-        border-bottom: none;
-        border-right: 1px solid var(--glass-border);
+        padding: 15px 5px !important;
+        font-size: 0.72rem !important;
+        gap: 5px !important;
+        font-weight: 700 !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        white-space: nowrap !important;
+    }
+    .brand i {
+        font-size: 0.85rem !important;
     }
     
+    /* Dense category links */
     .nav-links {
-        flex-direction: row;
-        padding: 15px;
-        overflow-x: auto;
-        white-space: nowrap;
-        align-items: center;
+        padding: 8px 4px !important;
+        gap: 4px !important;
+        overflow-y: auto !important;
+        flex-direction: column !important;
+        white-space: normal !important;
+        align-items: stretch !important;
     }
     
     .nav-links li {
-        margin-right: 10px;
-        margin-bottom: 10px; /* add some spacing if it wraps */
+        padding: 8px 6px !important;
+        border-radius: 6px !important;
+        gap: 6px !important;
+        font-size: 0.68rem !important;
+        margin-right: 0 !important;
+        margin-bottom: 4px !important;
+    }
+    .nav-links li i {
+        font-size: 0.85rem !important;
     }
     
+    .nav-badge {
+        font-size: 0.6rem !important;
+        padding: 1px 4px !important;
+    }
+    
+    /* Right Side Content Area: Starts exactly after the 175px sidebar */
     .main-content {
-        height: auto;
-        overflow: visible;
+        margin-left: 175px !important;
+        padding: 0 !important;
+        height: 100vh !important;
+        overflow-y: hidden !important;
+        flex: 1 !important;
+        width: calc(100% - 175px) !important;
+        border-radius: 0 !important;
+        border: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    header {
+        height: auto !important;
+        min-height: 60px !important;
+        padding: 8px 12px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .header-title {
+        font-size: 0.95rem !important;
+    }
+    
+    header div {
+        width: 100% !important;
+        justify-content: space-between !important;
     }
     
     .work-area {
-        overflow: visible;
+        padding: 12px 10px !important;
+        overflow-y: auto !important;
+        flex-grow: 1 !important;
+    }
+    
+    .card {
+        padding: 15px 10px !important;
+        border-radius: 10px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .card-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 15px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .msg-grid {
+        grid-template-columns: 1fr;
     }
 }
