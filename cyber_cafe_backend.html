@@ -15,7 +15,7 @@
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="backend.css?v=4">
+    <link rel="stylesheet" href="backend.css?v=5">
 </head>
 <body>
     <div id="toastContainer"></div>
@@ -42,8 +42,14 @@
 
     <!-- Main Backend Dashboard (Hidden by default) -->
     <div id="backendApp" style="display: none; height: 100vh; padding: 25px; box-sizing: border-box; width: 100%; gap: 25px; background: #080c15;">
+        <!-- Sidebar Backdrop Overlay -->
+        <div id="backendSidebarBackdrop" class="sidebar-backdrop"></div>
+
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
+            <button id="backendSidebarClose" class="sidebar-close-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
             <div class="brand">
                 <i class="fa-solid fa-shield-halved"></i> eMitra Sathi Backend
             </div>
@@ -69,11 +75,14 @@
                 <button onclick="logoutBackend()" class="btn btn-danger" style="width:100%; padding: 12px; font-size: 1rem;"><i class="fa-solid fa-right-from-bracket"></i> Secure Logout</button>
             </div>
         </aside>
-
+ 
         <!-- Main Content Area -->
         <main class="main-content">
             <header>
                 <div style="display:flex; align-items:center; gap: 15px;">
+                    <button id="backendSidebarToggle" class="mobile-menu-toggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                     <div class="header-title" id="pageTitle">All Service Management</div>
                 </div>
                 <div style="display:flex; align-items:center; gap: 15px;">
@@ -101,6 +110,7 @@
                         </div>
                         
                         <h3 class="card-title" style="margin-top:40px;"><i class="fa-solid fa-list-check"></i> Live Services List</h3>
+                        <div class="table-responsive">
                         <table style="width:100%;">
                             <thead>
                                 <tr>
@@ -114,6 +124,7 @@
                                 <!-- JS Populated -->
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
 
@@ -150,6 +161,7 @@
 
                         <!-- Dynamic Services List inside Highlights Tab -->
                         <h3 class="card-title" style="margin-top:40px;"><i class="fa-solid fa-list-check"></i> Portal Services List</h3>
+                        <div class="table-responsive">
                         <table style="width:100%;">
                             <thead>
                                 <tr>
@@ -163,6 +175,7 @@
                                 <!-- JS Populated dynamically -->
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
 
@@ -261,6 +274,7 @@
                         </div>
                         
                         <h3 class="card-title" style="margin-top:40px;"><i class="fa-solid fa-list-ul"></i> Active Categories List</h3>
+                        <div class="table-responsive">
                         <table style="width:100%;">
                             <thead>
                                 <tr>
@@ -274,6 +288,7 @@
                                 <!-- JS Populated -->
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
 
@@ -308,6 +323,7 @@
                                 <input type="text" id="pendingPaySearchInput" onkeyup="performDeepSearch('pendingPaySearchInput', 'pendingPaymentsList')" placeholder="Search by name, mobile, UTR..." style="width: 100%; padding: 10px 15px 10px 40px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; border-radius: 20px; outline: none;">
                             </div>
                         </div>
+                        <div class="table-responsive">
                         <table style="width:100%;">
                             <thead>
                                 <tr>
@@ -323,6 +339,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
 
                     <div class="card" style="border-color: #ffdd57; box-shadow: 0 0 20px rgba(255, 221, 87, 0.1);">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
@@ -335,6 +352,7 @@
                                 <input type="text" id="membershipPaySearchInput" onkeyup="performDeepSearch('membershipPaySearchInput', 'backendMembershipHistoryList')" placeholder="Search by name, mobile, UTR..." style="width: 100%; padding: 10px 15px 10px 40px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; border-radius: 20px; outline: none;">
                             </div>
                         </div>
+                        <div class="table-responsive">
                         <table style="width:100%;">
                             <thead>
                                 <tr>
@@ -353,9 +371,11 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
 
                     <div class="card">
                         <h3 class="card-title"><i class="fa-solid fa-file-invoice-dollar"></i> Global Payment History</h3>
+                        <div class="table-responsive">
                         <table style="width:100%;">
                             <thead>
                                 <tr>
@@ -370,6 +390,7 @@
                                 <!-- JS Populated -->
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
 
@@ -421,6 +442,7 @@
                 <div id="tab-users" class="tab-content">
                     <div class="card">
                         <h3 class="card-title"><i class="fa-solid fa-user-clock"></i> Pending New Users</h3>
+                        <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
@@ -436,6 +458,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </div>
 
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -445,6 +468,7 @@
                                 <input type="text" id="userSearchInput" onkeyup="searchUsers()" placeholder="Search by name, mobile or shop..." style="width: 100%; padding: 10px 15px 10px 40px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; border-radius: 20px; outline: none;">
                             </div>
                         </div>
+                        <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
@@ -459,6 +483,7 @@
                                 <!-- JS -->
                             </tbody>
                         </table>
+                    </div>
                     </div>
                     
                     <!-- Inline User Access Manager -->
@@ -504,6 +529,7 @@
                             </div>
                         </div>
                         <p style="color: var(--text-muted); margin-bottom: 20px;">Revoke portal access immediately. Blocked users will not be able to log in or use the services. Unblocking restores access instantly.</p>
+                        <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
@@ -518,6 +544,7 @@
                                 <!-- JS Populated -->
                             </tbody>
                         </table>
+                    </div>
                     </div>
                 </div>
 
