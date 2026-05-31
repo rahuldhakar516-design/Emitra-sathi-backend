@@ -310,6 +310,36 @@ input:focus, select:focus, textarea:focus {
     outline: none;
 }
 
+/* Tab Grid Layout for Landscape Split Screen */
+.tab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 25px;
+    align-items: start;
+    width: 100%;
+}
+
+.deploy-form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.form-group label {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
 /* Responsive Design for Backend */
 /* Responsive Helper Elements */
 .sidebar-close-btn {
@@ -515,6 +545,17 @@ input:focus, select:focus, textarea:focus {
     .card-title {
         font-size: 0.95rem !important;
         margin-bottom: 15px !important;
+    }
+
+    .tab-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+}
+
+@media (max-width: 1024px) and (orientation: landscape) {
+    .tab-grid {
+        grid-template-columns: 1fr 1.2fr !important;
     }
 }
 

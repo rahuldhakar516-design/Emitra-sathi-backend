@@ -98,84 +98,104 @@
                 
                 <!-- 1. All Service Tab -->
                 <div id="tab-services" class="tab-content active">
-                    <div class="card">
-                        <h3 class="card-title"><i class="fa-solid fa-plus-circle"></i> Deploy New Service Link</h3>
-                        <div style="display:flex; gap:15px; margin-bottom:20px;">
-                            <input type="text" id="srvTitle" placeholder="Service Name" style="flex:1; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px;">
-                            <input type="text" id="srvUrl" placeholder="Website URL (https://...)" style="flex:1; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px;">
-                            <select id="srvCat" style="padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; cursor: pointer;">
-                                <!-- JS Populated Dynamic Categories -->
-                            </select>
-                            <button onclick="addGlobalService()" class="btn btn-primary" style="padding: 0 20px;"><i class="fa-solid fa-cloud-arrow-up"></i> Add Service</button>
+                    <div class="tab-grid">
+                        <!-- Left Column: Add Service Link -->
+                        <div class="card">
+                            <h3 class="card-title"><i class="fa-solid fa-plus-circle"></i> Deploy New Service Link</h3>
+                            <div class="deploy-form-fields">
+                                <div class="form-group">
+                                    <label>Service Name</label>
+                                    <input type="text" id="srvTitle" placeholder="Service Name" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Website URL (https://...)</label>
+                                    <input type="text" id="srvUrl" placeholder="Website URL (https://...)" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Category</label>
+                                    <select id="srvCat" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; cursor: pointer;">
+                                        <!-- JS Populated Dynamic Categories -->
+                                    </select>
+                                </div>
+                                <button onclick="addGlobalService()" class="btn btn-primary" style="width:100%; padding: 12px; margin-top: 5px;"><i class="fa-solid fa-cloud-arrow-up"></i> Add Service</button>
+                            </div>
                         </div>
                         
-                        <h3 class="card-title" style="margin-top:40px;"><i class="fa-solid fa-list-check"></i> Live Services List</h3>
-                        <div class="table-responsive">
-                        <table style="width:100%;">
-                            <thead>
-                                <tr>
-                                    <th>Service Name</th>
-                                    <th>URL / Link</th>
-                                    <th>Category</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="globalServiceList">
-                                <!-- JS Populated -->
-                            </tbody>
-                        </table>
-                    </div>
+                        <!-- Right Column: Services List -->
+                        <div class="card">
+                            <h3 class="card-title" style="margin-bottom:15px;"><i class="fa-solid fa-list-check"></i> Live Services List</h3>
+                            <div class="table-responsive">
+                                <table style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Name</th>
+                                            <th>URL / Link</th>
+                                            <th>Category</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="globalServiceList">
+                                        <!-- JS Populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 1b. Highlights Services Tab -->
                 <div id="tab-highlights" class="tab-content">
-                    <div class="card" style="border-color: var(--primary-color); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);">
-                        <h3 class="card-title"><i class="fa-solid fa-star"></i> Highlight a Portal Service</h3>
-                        <p style="color:var(--text-muted); margin-bottom:20px;">Select any active portal service, choose a custom neon highlight color, and it will be pinned as a special direct-action service at the bottom of the Operator Frontend sidebar.</p>
-                        
-                        <div style="display:flex; flex-wrap:wrap; gap:15px; align-items:center; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px;">
-                            <div style="flex:1; min-width:200px;">
-                                <label style="color:#aaa; font-size:0.9rem; display:block; margin-bottom:8px;">Select Service to Highlight:</label>
-                                <select id="hlServiceSelect" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; cursor: pointer; outline: none;">
-                                    <!-- JS Populated dynamically -->
-                                </select>
-                            </div>
-                            <div style="width:180px;">
-                                <label style="color:#aaa; font-size:0.9rem; display:block; margin-bottom:8px;">Highlight Color:</label>
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <input type="color" id="hlColor" value="#ff007a" style="width: 45px; height: 45px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" oninput="document.getElementById('hlColorText').textContent = this.value">
-                                    <span id="hlColorText" style="color:#fff; font-family:monospace; font-size:0.9rem;">#ff007a</span>
+                    <div class="tab-grid">
+                        <!-- Left Column: Highlight Settings -->
+                        <div class="card" style="border-color: var(--primary-color); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);">
+                            <h3 class="card-title"><i class="fa-solid fa-star"></i> Highlight a Portal Service</h3>
+                            <p style="color:var(--text-muted); margin-bottom:20px; font-size: 0.85rem; line-height: 1.4;">Select any active portal service, choose a custom neon highlight color, and it will be pinned as a special direct-action service at the bottom of the Operator Frontend sidebar.</p>
+                            
+                            <div class="deploy-form-fields" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                                <div class="form-group">
+                                    <label>Select Service to Highlight:</label>
+                                    <select id="hlServiceSelect" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; cursor: pointer; outline: none;">
+                                        <!-- JS Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Highlight Color:</label>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <input type="color" id="hlColor" value="#ff007a" style="width: 45px; height: 45px; border: none; border-radius: 6px; cursor: pointer; background: transparent;" oninput="document.getElementById('hlColorText').textContent = this.value">
+                                        <span id="hlColorText" style="color:#fff; font-family:monospace; font-size:0.9rem;">#ff007a</span>
+                                    </div>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:10px; margin-top:5px; width: 100%;">
+                                    <button onclick="saveHighlightService()" class="btn btn-primary" style="width: 100%; padding: 12px;"><i class="fa-solid fa-floppy-disk"></i> Save Highlight</button>
+                                    <button onclick="clearHighlightService()" class="btn btn-danger" style="width: 100%; padding: 12px;"><i class="fa-solid fa-trash"></i> Remove Highlight</button>
                                 </div>
                             </div>
-                            <div style="display:flex; gap:15px; margin-top:10px; width: 100%;">
-                                <button onclick="saveHighlightService()" class="btn btn-primary" style="padding: 12px 25px;"><i class="fa-solid fa-floppy-disk"></i> Save Highlight</button>
-                                <button onclick="clearHighlightService()" class="btn btn-danger" style="padding: 12px 25px;"><i class="fa-solid fa-trash"></i> Remove Highlight</button>
+
+                            <div id="hlStatusBlock" style="font-size: 0.9rem; color: #fff; display: none; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                                <span>Currently Highlighted:</span>
+                                <span id="hlActiveServiceName" style="font-weight: 700; padding: 4px 12px; border-radius: 6px; font-size:0.8rem;">None</span>
                             </div>
                         </div>
 
-                        <div id="hlStatusBlock" style="margin-top: 15px; font-size: 1rem; color: #fff; display: none; align-items: center; gap: 10px; padding: 10px 15px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
-                            <span>Currently Highlighted:</span>
-                            <span id="hlActiveServiceName" style="font-weight: 700; padding: 4px 12px; border-radius: 6px; font-size:0.9rem;">None</span>
+                        <!-- Right Column: Portal Services List -->
+                        <div class="card">
+                            <h3 class="card-title" style="margin-bottom:15px;"><i class="fa-solid fa-list-check"></i> Portal Services List</h3>
+                            <div class="table-responsive">
+                                <table style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Service Name</th>
+                                            <th>URL / Link</th>
+                                            <th>Category</th>
+                                            <th>Highlight Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="hlServicesListTable">
+                                        <!-- JS Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-
-                        <!-- Dynamic Services List inside Highlights Tab -->
-                        <h3 class="card-title" style="margin-top:40px;"><i class="fa-solid fa-list-check"></i> Portal Services List</h3>
-                        <div class="table-responsive">
-                        <table style="width:100%;">
-                            <thead>
-                                <tr>
-                                    <th>Service Name</th>
-                                    <th>URL / Link</th>
-                                    <th>Category</th>
-                                    <th>Highlight Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="hlServicesListTable">
-                                <!-- JS Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
                     </div>
                 </div>
 
@@ -253,42 +273,54 @@
                 </div>
 
                 <div id="tab-navigation" class="tab-content">
-                    <div class="card">
-                        <h3 class="card-title"><i class="fa-solid fa-folder-plus"></i> Add New Category</h3>
-                        <p style="color:var(--text-muted); margin-bottom:20px;">Categories added here will instantly appear on the Left Sidebar of all operators' Frontends.</p>
-                        <div style="display:flex; flex-wrap: wrap; gap:15px; margin-bottom:20px; align-items: center; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 8px;">
-                            <input type="text" id="catName" placeholder="Category Name (e.g. Banking)" style="flex: 1 1 200px; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; outline: none;">
+                    <div class="tab-grid">
+                        <!-- Left Column: Add Category -->
+                        <div class="card">
+                            <h3 class="card-title"><i class="fa-solid fa-folder-plus"></i> Add New Category</h3>
+                            <p style="color:var(--text-muted); margin-bottom:20px; font-size: 0.85rem; line-height: 1.4;">Categories added here will instantly appear on the Left Sidebar of all operators' Frontends.</p>
                             
-                            <input type="text" id="catUrl" placeholder="Direct URL/Link (Optional - e.g. https://...)" style="flex: 1 1 250px; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; outline: none;">
-                            
-                            <div style="display: flex; align-items: center; gap: 10px; flex: 1 1 250px;">
-                                <label style="color:#aaa; font-size:0.9rem; white-space:nowrap;">Category Image:</label>
-                                <input type="file" id="catImageFile" accept="image/*" style="color: #fff; width: 100%; font-size: 0.85rem;" onchange="previewCatImage(this)">
+                            <div class="deploy-form-fields" style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                                <div class="form-group">
+                                    <label>Category Name (e.g. Banking):</label>
+                                    <input type="text" id="catName" placeholder="Category Name" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; outline: none;">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Direct URL/Link (Optional):</label>
+                                    <input type="text" id="catUrl" placeholder="Direct URL/Link (Optional)" style="width:100%; padding:12px; background:rgba(0,0,0,0.5); border:1px solid var(--border); color:#fff; border-radius:6px; outline: none;">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Category Image:</label>
+                                    <input type="file" id="catImageFile" accept="image/*" style="color: #fff; width: 100%; font-size: 0.85rem;" onchange="previewCatImage(this)">
+                                    <div id="catImagePreview" style="margin-top: 10px;"></div>
+                                </div>
+                                
+                                <input type="hidden" id="catIcon" value="fa-solid fa-folder">
+                                
+                                <button onclick="addCategory()" class="btn btn-primary" style="width:100%; padding: 12px; margin-top: 5px;"><i class="fa-solid fa-plus"></i> Create Category</button>
                             </div>
-                            
-                            <div id="catImagePreview" style="margin-left: 10px;"></div>
-                            
-                            <input type="hidden" id="catIcon" value="fa-solid fa-folder">
-                            
-                            <button onclick="addCategory()" class="btn btn-primary" style="padding: 12px 25px; margin-left: auto;"><i class="fa-solid fa-plus"></i> Create Category</button>
                         </div>
                         
-                        <h3 class="card-title" style="margin-top:40px;"><i class="fa-solid fa-list-ul"></i> Active Categories List</h3>
-                        <div class="table-responsive">
-                        <table style="width:100%;">
-                            <thead>
-                                <tr>
-                                    <th>Icon</th>
-                                    <th>Category Name</th>
-                                    <th>Internal ID</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="backendCategoryList">
-                                <!-- JS Populated -->
-                            </tbody>
-                        </table>
-                    </div>
+                        <!-- Right Column: Active Categories List -->
+                        <div class="card">
+                            <h3 class="card-title" style="margin-bottom:15px;"><i class="fa-solid fa-list-ul"></i> Active Categories List</h3>
+                            <div class="table-responsive">
+                                <table style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Icon</th>
+                                            <th>Category Name</th>
+                                            <th>Internal ID</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="backendCategoryList">
+                                        <!-- JS Populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
