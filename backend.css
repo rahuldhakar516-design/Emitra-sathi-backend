@@ -389,132 +389,150 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 1024px) {
     html, body {
-        display: block !important;
         width: 100% !important;
         max-width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
-        overflow-x: hidden !important;
-    }
-    
-    #backendApp {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-        height: 100vh !important;
-        overflow: hidden !important;
-        overflow-x: hidden !important;
-        padding: 0 !important;
-        gap: 0 !important;
         background: #080c15 !important;
     }
     
-    .mobile-menu-toggle {
-        display: none !important;
+    #backendApp {
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        background: #080c15 !important;
+        overflow: hidden !important;
     }
     
-    /* Sidebar permanently visible on the side (175px width) */
-    .sidebar {
-        position: fixed !important;
+    /* Completely remove main-content box styling so children render directly under backendApp */
+    .main-content {
+        display: contents !important;
+    }
+    
+    /* Full-width header spanning the top from very left to very right */
+    header {
+        position: absolute !important;
         top: 0 !important;
         left: 0 !important;
+        width: 100% !important;
+        height: 60px !important;
+        z-index: 500 !important;
+        padding: 0 15px !important;
+        background: rgba(11, 15, 25, 0.95) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-bottom: 1px solid var(--glass-border) !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 15px !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Sidebar starting strictly below header on the left */
+    .sidebar {
+        position: absolute !important;
+        top: 60px !important; /* Starts below header */
+        left: 0 !important;
         width: 175px !important;
-        height: 100vh !important;
-        z-index: 1000 !important;
-        padding: 10px 5px !important;
-        background: #0b0f19 !important; /* solid deep dark background */
+        min-width: 175px !important;
+        max-width: 175px !important;
+        height: calc(100vh - 60px) !important;
+        z-index: 100 !important;
+        padding: 15px 5px !important;
+        background: #0b0f19 !important; /* Solid deep dark background */
         border-right: 1px solid var(--glass-border) !important;
-        border-radius: 0 !important;
+        border-radius: 0 !important; /* Zero margin & rounded corners per user drawing */
         display: flex !important;
         flex-direction: column !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
-        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4) !important;
+        box-shadow: none !important;
     }
     
-    .sidebar-close-btn {
-        display: none !important;
+    /* Main workspace starting strictly below header next to sidebar */
+    .work-area {
+        position: absolute !important;
+        top: 60px !important; /* Starts below header */
+        left: 175px !important; /* Starts after sidebar */
+        width: calc(100% - 175px) !important;
+        height: calc(100vh - 60px) !important;
+        z-index: 100 !important;
+        padding: 15px 12px !important;
+        overflow-y: auto !important;
+        background: #080c15 !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-sizing: border-box !important;
     }
     
-    .sidebar-backdrop {
-        display: none !important;
-    }
-    
-    /* Make brand heading small and compact */
+    /* Make brand heading compact but highly legible */
     .brand {
-        padding: 15px 5px !important;
-        font-size: 0.72rem !important;
-        gap: 5px !important;
+        padding: 12px 6px !important;
+        font-size: 0.78rem !important;
+        gap: 6px !important;
         font-weight: 700 !important;
         border-bottom: 1px solid var(--glass-border) !important;
         white-space: nowrap !important;
+        text-align: center !important;
+        justify-content: center !important;
     }
     .brand i {
-        font-size: 0.85rem !important;
+        font-size: 1rem !important;
     }
     
-    /* Dense category links */
+    /* Comfortable links in navigation drawer */
     .nav-links {
-        padding: 8px 4px !important;
+        padding: 10px 4px !important;
         gap: 4px !important;
         overflow-y: auto !important;
         flex-direction: column !important;
-        white-space: normal !important;
-        align-items: stretch !important;
     }
     
     .nav-links li {
-        padding: 8px 6px !important;
+        padding: 10px 8px !important;
         border-radius: 6px !important;
-        gap: 6px !important;
-        font-size: 0.68rem !important;
+        gap: 8px !important;
+        font-size: 0.72rem !important;
         margin-right: 0 !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 5px !important;
     }
     .nav-links li i {
-        font-size: 0.85rem !important;
-    }
-    
-    .nav-badge {
-        font-size: 0.6rem !important;
-        padding: 1px 4px !important;
-    }
-    
-    /* Right Side Content Area: Starts exactly after the 175px sidebar */
-    .main-content {
-        margin-left: 175px !important;
-        padding: 0 !important;
-        height: 100vh !important;
-        overflow-y: hidden !important;
-        flex: 1 !important;
-        width: calc(100% - 175px) !important;
-        border-radius: 0 !important;
-        border: none !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-    
-    header {
-        height: auto !important;
-        min-height: 60px !important;
-        padding: 8px 12px !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 6px !important;
-        flex-wrap: nowrap !important;
-    }
-    
-    .header-title {
         font-size: 0.95rem !important;
     }
     
+    .nav-badge {
+        font-size: 0.65rem !important;
+        padding: 2px 6px !important;
+    }
+    
+    .mobile-menu-toggle {
+        display: none !important; /* Hide hamburger toggle since sidebar is permanent */
+    }
+    
+    .sidebar-close-btn {
+        display: none !important; /* Hide close button */
+    }
+    
+    .sidebar-backdrop {
+        display: none !important; /* Hide backdrop overlay */
+    }
+    
+    .header-title {
+        font-size: 1.1rem !important;
+    }
+    
     header div {
-        width: 100% !important;
-        justify-content: space-between !important;
+        width: auto !important;
+        justify-content: flex-start !important;
         display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 8px !important;
+        align-items: center !important;
+        gap: 10px !important;
     }
     
     /* Hide the 'Master Admin' text to fit header actions inside narrow screens */
@@ -524,16 +542,8 @@ input:focus, select:focus, textarea:focus {
     
     header #headerThemeBadge {
         display: inline-flex !important;
-    }
-    
-    header #headerThemeBadge span {
-        display: inline !important;
-    }
-    
-    .work-area {
-        padding: 12px 10px !important;
-        overflow-y: auto !important;
-        flex-grow: 1 !important;
+        padding: 6px 10px !important;
+        font-size: 0.78rem !important;
     }
     
     .card {
@@ -547,15 +557,50 @@ input:focus, select:focus, textarea:focus {
         margin-bottom: 15px !important;
     }
 
+    /* Stack dual columns vertically on portrait mobile/tablets */
     .tab-grid {
         grid-template-columns: 1fr !important;
         gap: 15px !important;
     }
 }
 
-@media (max-width: 1024px) and (orientation: landscape) {
-    .tab-grid {
-        grid-template-columns: 1fr 1.2fr !important;
+/* Small screen phone optimization (Tiny mobile viewports) */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 110px !important;
+        min-width: 110px !important;
+        max-width: 110px !important;
+    }
+    
+    .work-area {
+        left: 110px !important;
+        width: calc(100% - 110px) !important;
+    }
+    
+    .brand {
+        font-size: 0.62rem !important;
+        padding: 10px 2px !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+    .brand i {
+        font-size: 1rem !important;
+    }
+    
+    .nav-links li {
+        font-size: 0.58rem !important;
+        padding: 8px 4px !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+    .nav-links li i {
+        font-size: 0.9rem !important;
+    }
+    
+    .nav-badge {
+        display: none !important;
     }
 }
 
