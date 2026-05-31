@@ -359,13 +359,15 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 1024px) {
     body {
+        display: block !important;
+        width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
     }
     
     #backendApp {
-        display: flex !important;
-        flex-direction: row !important;
+        display: block !important;
+        width: 100% !important;
         height: 100vh !important;
         overflow: hidden !important;
         padding: 0 !important;
