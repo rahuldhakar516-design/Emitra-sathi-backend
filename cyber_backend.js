@@ -152,7 +152,9 @@ function logoutBackend() {
 // 2. Tab Routing
 function switchTab(tabId) {
     document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
     
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById('tab-' + tabId).classList.add('active');
@@ -171,9 +173,14 @@ function switchTab(tabId) {
         'users': 'User List & Permissions',
         'inbox': 'Support Inbox',
         'password': 'Password Change For User',
-        'blacklist': 'User Blacklist System'
+        'blacklist': 'User Blacklist System',
+        'receive': 'Received Work Requests & Operator Chat'
     };
     document.getElementById('pageTitle').innerText = titles[tabId] || 'Master Backend';
+    
+    if (tabId === 'receive') {
+        initReceiveWork();
+    }
 }
 
 // 3. Render Functions
@@ -188,6 +195,7 @@ function initBackend() {
     renderMembershipHistoryBackend();
     renderBlacklist();
     loadAdvancedConfigs();
+    initReceiveWork();
 }
 
 // -- NAVIGATION TAB --
@@ -2017,3 +2025,439 @@ window.searchBackendServices = function() {
         }
     });
 };
+
+// ==========================================
+// --- RECEIVE WORK & OPERATOR CHAT LOGIC ---
+// ==========================================
+
+let selectedRecTicketId = null;
+let receiveWorkFilterText = "";
+let receiveWorkListenerActive = false;
+let allWorkRequests = [];
+
+function loadReceiveWorkFromCache() {
+    try {
+        const cachedRequests = localStorage.getItem('cyberCafeWorkRequests_admin');
+        if (cachedRequests) {
+            allWorkRequests = JSON.parse(cachedRequests);
+            allWorkRequests.sort((a, b) => b.timestamp - a.timestamp);
+        }
+    } catch(e) {
+        console.error("Error loading cached receive work requests:", e);
+    }
+}
+
+window.initReceiveWork = function() {
+    if (typeof db === 'undefined' || db === null) return;
+    
+    // Load cached receive work tickets to display instantly
+    if (allWorkRequests.length === 0) {
+        loadReceiveWorkFromCache();
+    }
+    
+    // Render from cache immediately
+    renderReceiveWorkList();
+    updateReceiveWorkBadge();
+
+    if (receiveWorkListenerActive) return;
+    receiveWorkListenerActive = true;
+
+    db.ref('cyberCafeWorkRequests').on('value', (snapshot) => {
+        allWorkRequests = [];
+        snapshot.forEach(child => {
+            allWorkRequests.push(child.val());
+        });
+        
+        // Sort by timestamp (newest first)
+        allWorkRequests.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // Save to local cache permanently
+        try {
+            localStorage.setItem('cyberCafeWorkRequests_admin', JSON.stringify(allWorkRequests));
+        } catch(e) {
+            console.error("Error caching receive work requests:", e);
+        }
+        
+        // Render list
+        renderReceiveWorkList();
+        
+        // If we have selected a ticket, update it
+        if (selectedRecTicketId) {
+            const updatedTicket = allWorkRequests.find(t => t.id === selectedRecTicketId);
+            if (updatedTicket) {
+                renderReceiveChatWindow(selectedRecTicketId);
+            }
+        }
+        
+        // Update sidebar badge
+        updateReceiveWorkBadge();
+    });
+};
+
+window.filterReceiveWorkList = function() {
+    const input = document.getElementById('receiveWorkSearch');
+    if (input) receiveWorkFilterText = input.value.toLowerCase();
+    renderReceiveWorkList();
+};
+
+window.renderReceiveWorkList = function() {
+    const container = document.getElementById('receiveWorkList');
+    if (!container) return;
+
+    container.innerHTML = "";
+    
+    const filtered = allWorkRequests.filter(t => {
+        return t.operatorName.toLowerCase().includes(receiveWorkFilterText) ||
+               t.operatorPhone.toLowerCase().includes(receiveWorkFilterText) ||
+               t.id.toLowerCase().includes(receiveWorkFilterText) ||
+               t.message.toLowerCase().includes(receiveWorkFilterText);
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; color: var(--text-muted); padding: 40px 10px;">
+                <i class="fa-solid fa-hourglass" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                <p>No work tickets found</p>
+            </div>
+        `;
+        return;
+    }
+
+    const viewTimes = getAdminLastViewedTimes();
+
+    filtered.forEach(ticket => {
+        const item = document.createElement('div');
+        item.style.padding = "12px";
+        item.style.border = "1px solid var(--glass-border)";
+        item.style.borderRadius = "8px";
+        item.style.background = selectedRecTicketId === ticket.id ? "rgba(0, 240, 255, 0.1)" : "rgba(255,255,255,0.02)";
+        item.style.borderLeft = selectedRecTicketId === ticket.id ? "3px solid var(--primary-color)" : "1px solid var(--glass-border)";
+        item.style.cursor = "pointer";
+        item.style.transition = "var(--transition)";
+        item.style.marginBottom = "8px";
+        
+        item.onclick = () => selectReceiveWorkTicket(ticket.id);
+        
+        // Check unread
+        const lastViewed = viewTimes[ticket.id] || 0;
+        const opReplies = (ticket.replies || []).filter(r => r.sender === 'operator');
+        const hasUnread = opReplies.length > 0 && opReplies[opReplies.length - 1].timestamp > lastViewed;
+        
+        const dateStr = new Date(ticket.timestamp).toLocaleDateString('en-IN', {
+            day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+
+        item.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-weight:700; color:#fff; font-size:0.85rem;">${ticket.operatorName}</span>
+                <span class="ticket-status-badge badge-${ticket.status}" style="font-size:0.65rem;">${ticket.status}</span>
+            </div>
+            <div style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px;">
+                ${ticket.message}
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.7rem; color:var(--text-muted);">${dateStr}</span>
+                ${hasUnread ? `<span style="width: 8px; height: 8px; background: #ff007a; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #ff007a;"></span>` : ''}
+            </div>
+        `;
+        container.appendChild(item);
+    });
+};
+
+window.selectReceiveWorkTicket = function(ticketId) {
+    selectedRecTicketId = ticketId;
+    
+    const placeholder = document.getElementById('receivePlaceholder');
+    if (placeholder) placeholder.style.display = 'none';
+
+    renderReceiveWorkList();
+    renderReceiveChatWindow(ticketId);
+    
+    // Save read time
+    saveAdminLastViewedTime(ticketId, Date.now());
+};
+
+window.renderReceiveChatWindow = function(ticketId) {
+    const ticket = allWorkRequests.find(t => t.id === ticketId);
+    if (!ticket) return;
+
+    const dateStr = new Date(ticket.timestamp).toLocaleString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    
+    document.getElementById('recTicketTitle').textContent = `Ticket #${ticket.id.slice(-8)} - ${ticket.operatorName}`;
+    document.getElementById('recTicketTime').innerHTML = `<i class="fa-solid fa-user"></i> Operator: <strong>${ticket.operatorName}</strong> | Submitted: ${dateStr}`;
+    document.getElementById('recOperatorContact').innerHTML = `<i class="fa-solid fa-phone"></i> Mobile: +91 ${ticket.operatorPhone || 'N/A'}`;
+    
+    const statusSelect = document.getElementById('recStatusSelect');
+    if (statusSelect) statusSelect.value = ticket.status;
+
+    document.getElementById('recTicketMessage').textContent = ticket.message;
+
+    // Attachments
+    const attachContainer = document.getElementById('recTicketAttachments');
+    attachContainer.innerHTML = "";
+    
+    if (ticket.files && Array.isArray(ticket.files) && ticket.files.length > 0) {
+        ticket.files.forEach(file => {
+            const fileItem = document.createElement('div');
+            fileItem.style.display = "flex";
+            fileItem.style.flexDirection = "column";
+            fileItem.style.gap = "6px";
+            fileItem.style.border = "1px solid var(--glass-border)";
+            fileItem.style.borderRadius = "8px";
+            fileItem.style.padding = "8px";
+            fileItem.style.background = "rgba(255,255,255,0.02)";
+            fileItem.style.width = "140px";
+            fileItem.style.alignItems = "center";
+            fileItem.style.textAlign = "center";
+            fileItem.style.marginBottom = "5px";
+
+            if (file.type === 'image') {
+                fileItem.innerHTML = `
+                    <a href="${file.data}" target="_blank">
+                        <img src="${file.data}" alt="${file.name}" style="width:120px; height:120px; object-fit:cover; border-radius:6px; border:1px solid var(--glass-border);">
+                    </a>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:120px;" title="${file.name}">${file.name}</span>
+                    <a href="${file.data}" download="${file.name || 'image.jpg'}" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+                        <i class="fa-solid fa-download"></i> Download
+                    </a>
+                `;
+            } else if (file.type === 'pdf') {
+                fileItem.innerHTML = `
+                    <i class="fa-solid fa-file-pdf" style="font-size: 2.5rem; color: #ff3333; margin-top: 15px; margin-bottom: 15px;"></i>
+                    <span style="font-size: 0.75rem; color: var(--text-muted); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:120px; margin-bottom: 8px;" title="${file.name}">${file.name}</span>
+                    <a href="${file.data}" download="${file.name || 'document.pdf'}" class="chat-attachment-pdf" style="display:inline-flex; align-items:center; justify-content:center; gap:4px; background:rgba(255, 51, 51, 0.1); color:#ff3333; border:1px solid rgba(255, 51, 51, 0.3); padding:4px 8px; border-radius:4px; text-decoration:none; font-size:0.7rem; font-weight:600; width: 100%;">
+                        <i class="fa-solid fa-file-pdf"></i> Download
+                    </a>
+                `;
+            } else if (file.type === 'audio') {
+                fileItem.innerHTML = `
+                    <div class="ticket-audio-player" style="width:100%; justify-content:center;">
+                        <i class="fa-solid fa-microphone" style="color: #00ff88; font-size: 1.1rem;"></i>
+                        <audio src="${file.data}" controls style="max-width: 90px; height: 24px; outline:none; background:#000; border-radius:12px; overflow:hidden;"></audio>
+                    </div>
+                `;
+            }
+            attachContainer.appendChild(fileItem);
+        });
+    } else if (ticket.fileType && ticket.fileType !== 'none' && ticket.fileData) {
+        const fileItem = document.createElement('div');
+        fileItem.style.display = "flex";
+        fileItem.style.flexDirection = "column";
+        fileItem.style.gap = "6px";
+        fileItem.style.border = "1px solid var(--glass-border)";
+        fileItem.style.borderRadius = "8px";
+        fileItem.style.padding = "8px";
+        fileItem.style.background = "rgba(255,255,255,0.02)";
+        fileItem.style.width = "140px";
+        fileItem.style.alignItems = "center";
+        fileItem.style.textAlign = "center";
+
+        if (ticket.fileType === 'image') {
+            fileItem.innerHTML = `
+                <a href="${ticket.fileData}" target="_blank">
+                    <img src="${ticket.fileData}" alt="${ticket.fileName}" style="width:120px; height:120px; object-fit:cover; border-radius:6px; border:1px solid var(--glass-border);">
+                </a>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:120px;" title="${ticket.fileName}">${ticket.fileName}</span>
+                <a href="${ticket.fileData}" download="${ticket.fileName || 'image.jpg'}" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; width: 100%;">
+                    <i class="fa-solid fa-download"></i> Download
+                </a>
+            `;
+        } else if (ticket.fileType === 'pdf') {
+            fileItem.innerHTML = `
+                <i class="fa-solid fa-file-pdf" style="font-size: 2.5rem; color: #ff3333; margin-top: 15px; margin-bottom: 15px;"></i>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:120px; margin-bottom: 8px;" title="${ticket.fileName}">${ticket.fileName}</span>
+                <a href="${ticket.fileData}" download="${ticket.fileName || 'document.pdf'}" class="chat-attachment-pdf" style="display:inline-flex; align-items:center; justify-content:center; gap:4px; background:rgba(255, 51, 51, 0.1); color:#ff3333; border:1px solid rgba(255, 51, 51, 0.3); padding:4px 8px; border-radius:4px; text-decoration:none; font-size:0.7rem; font-weight:600; width: 100%;">
+                    <i class="fa-solid fa-file-pdf"></i> Download
+                </a>
+            `;
+        } else if (ticket.fileType === 'audio') {
+            fileItem.innerHTML = `
+                <div class="ticket-audio-player" style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.3); border:1px solid var(--glass-border); padding:8px 12px; border-radius:12px; width:260px;">
+                    <i class="fa-solid fa-microphone" style="color: #00ff88; font-size: 1.2rem;"></i>
+                    <audio src="${ticket.fileData}" controls style="max-width: 190px; height: 28px; outline:none; background:#000; border-radius:14px; overflow:hidden;"></audio>
+                </div>
+            `;
+        }
+        attachContainer.appendChild(fileItem);
+    } else {
+        attachContainer.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">No attachments</span>`;
+    }
+
+    // Chat Bubbles
+    const messageContainer = document.getElementById('recChatMessages');
+    messageContainer.innerHTML = "";
+
+    const replies = ticket.replies || [];
+    replies.forEach(reply => {
+        const bubble = document.createElement('div');
+        const isMe = reply.sender === 'admin';
+        
+        bubble.style.maxWidth = "75%";
+        bubble.style.padding = "10px 14px";
+        bubble.style.borderRadius = "12px";
+        bubble.style.lineHeight = "1.4";
+        bubble.style.fontSize = "0.9rem";
+        bubble.style.position = "relative";
+        bubble.style.wordWrap = "break-word";
+        bubble.style.display = "flex";
+        bubble.style.flexDirection = "column";
+        
+        if (isMe) {
+            bubble.style.alignSelf = "flex-end";
+            bubble.style.background = "var(--primary-gradient)";
+            bubble.style.color = "#fff";
+            bubble.style.borderBottomRightRadius = "2px";
+            bubble.style.boxShadow = "0 4px 10px rgba(0, 90, 255, 0.2)";
+        } else {
+            bubble.style.alignSelf = "flex-start";
+            bubble.style.background = "rgba(255, 255, 255, 0.06)";
+            bubble.style.color = "#f1f5f9";
+            bubble.style.borderBottomLeftRadius = "2px";
+            bubble.style.border = "1px solid var(--glass-border)";
+        }
+        
+        const timeVal = reply.timestamp ? new Date(reply.timestamp).toLocaleTimeString('en-IN', {
+            hour: '2-digit', minute: '2-digit'
+        }) : '';
+
+        bubble.innerHTML = `
+            <span style="font-size: 0.75rem; font-weight: 700; margin-bottom: 3px; color: ${isMe ? '#ffd700' : 'var(--primary-color)'};">${reply.senderName || (isMe ? 'Admin (Master)' : 'Operator')}</span>
+            <span style="white-space: pre-wrap;">${reply.text}</span>
+            <span style="font-size: 0.7rem; opacity: 0.7; margin-top: 4px; align-self: flex-end;">${timeVal}</span>
+        `;
+        messageContainer.appendChild(bubble);
+    });
+
+    // Scroll chat window to bottom
+    const scrollContainer = document.getElementById('recChatScrollContainer');
+    if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    }
+};
+
+window.sendAdminChatReply = function(e) {
+    if (e) e.preventDefault();
+
+    if (!selectedRecTicketId) return;
+    const input = document.getElementById('recChatInput');
+    const msgText = input.value.trim();
+    if (!msgText) return;
+
+    const ticket = allWorkRequests.find(t => t.id === selectedRecTicketId);
+    if (!ticket) return;
+
+    const replies = ticket.replies || [];
+    
+    // Create new reply payload
+    const newReply = {
+        sender: 'admin',
+        senderName: 'Admin (Master)',
+        text: msgText,
+        timestamp: Date.now()
+    };
+
+    replies.push(newReply);
+
+    input.value = "";
+    
+    db.ref('cyberCafeWorkRequests/' + selectedRecTicketId + '/replies').set(replies)
+        .then(() => {
+            saveAdminLastViewedTime(selectedRecTicketId, Date.now());
+        })
+        .catch(err => {
+            console.error("Admin chat send error:", err);
+            showToast("Failed to send reply.", "error");
+        });
+};
+
+window.handleAdminChatSubmitOnEnter = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendAdminChatReply();
+    }
+};
+
+window.updateTicketStatus = function() {
+    if (!selectedRecTicketId) return;
+    const newStatus = document.getElementById('recStatusSelect').value;
+    
+    const ticket = allWorkRequests.find(t => t.id === selectedRecTicketId);
+    if (!ticket) return;
+
+    const replies = ticket.replies || [];
+    
+    // Status change notification bubble
+    replies.push({
+        sender: 'admin',
+        senderName: 'Admin System',
+        text: `Ticket Status Updated to: ${newStatus.toUpperCase()}`,
+        timestamp: Date.now()
+    });
+
+    db.ref('cyberCafeWorkRequests/' + selectedRecTicketId).update({
+        status: newStatus,
+        replies: replies
+    })
+    .then(() => {
+        showToast(`Ticket status updated to ${newStatus}!`, "success");
+    })
+    .catch(err => {
+        console.error("Status update error:", err);
+        showToast("Failed to update status.", "error");
+    });
+};
+
+// Admin Local Last Viewed tracking helpers
+function getAdminLastViewedTimes() {
+    try {
+        return JSON.parse(localStorage.getItem('cyberCafeAdminLastViewedTickets') || '{}');
+    } catch(e) {
+        return {};
+    }
+}
+
+function saveAdminLastViewedTime(ticketId, time) {
+    const times = getAdminLastViewedTimes();
+    times[ticketId] = time;
+    localStorage.setItem('cyberCafeAdminLastViewedTickets', JSON.stringify(times));
+    updateReceiveWorkBadge();
+}
+
+function updateReceiveWorkBadge() {
+    const viewTimes = getAdminLastViewedTimes();
+    let unreadCount = 0;
+    
+    allWorkRequests.forEach(ticket => {
+        // Only count unread if not selected
+        if (selectedRecTicketId && ticket.id === selectedRecTicketId) return;
+        
+        const lastViewed = viewTimes[ticket.id] || 0;
+        const opReplies = (ticket.replies || []).filter(r => r.sender === 'operator');
+        
+        if (opReplies.length > 0) {
+            const lastOpReply = opReplies[opReplies.length - 1];
+            if (lastOpReply.timestamp > lastViewed) {
+                unreadCount++;
+            }
+        }
+    });
+
+    const badge = document.getElementById('workBadge');
+    const badgeTab = document.getElementById('receiveWorkUnreadBadge');
+    
+    if (unreadCount > 0) {
+        if (badge) {
+            badge.style.display = 'inline-block';
+            badge.textContent = unreadCount;
+        }
+        if (badgeTab) {
+            badgeTab.style.display = 'inline-block';
+            badgeTab.textContent = unreadCount;
+        }
+    } else {
+        if (badge) badge.style.display = 'none';
+        if (badgeTab) badgeTab.style.display = 'none';
+    }
+}
