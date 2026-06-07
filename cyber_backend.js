@@ -301,17 +301,6 @@ function renderServices() {
     const config = JSON.parse(localStorage.getItem('cyberHighlightConfig'));
 
     services.forEach((srv, idx) => {
-        if (sList) {
-            sList.innerHTML += `
-                <tr>
-                    <td><strong>${srv.title}</strong></td>
-                    <td><a href="${srv.url}" target="_blank" style="color:#00f0ff;">${srv.url.substring(0,30)}...</a></td>
-                    <td><span class="badge-info">${srv.category}</span></td>
-                    <td><button class="btn btn-danger" onclick="delService(${idx})"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `;
-        }
-        
         if(hlSelect) {
             hlSelect.innerHTML += `<option value="${srv.title.replace(/"/g, '&quot;')}">${srv.title}</option>`;
         }
@@ -332,6 +321,20 @@ function renderServices() {
             `;
         }
     });
+
+    if (sList) {
+        for (let idx = services.length - 1; idx >= 0; idx--) {
+            const srv = services[idx];
+            sList.innerHTML += `
+                <tr>
+                    <td><strong>${srv.title}</strong></td>
+                    <td><a href="${srv.url}" target="_blank" style="color:#00f0ff;">${srv.url.substring(0,30)}...</a></td>
+                    <td><span class="badge-info">${srv.category}</span></td>
+                    <td><button class="btn btn-danger" onclick="delService(${idx})"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `;
+        }
+    }
 
     if(hlSelect && hlSelectedValue) {
         hlSelect.value = hlSelectedValue;
@@ -2001,3 +2004,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+window.searchBackendServices = function() {
+    const query = document.getElementById('srvSearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#globalServiceList tr');
+    rows.forEach(row => {
+        const text = row.querySelector('td strong').textContent.toLowerCase();
+        if (text.includes(query)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+};

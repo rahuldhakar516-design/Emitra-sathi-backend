@@ -123,7 +123,13 @@
                         
                         <!-- Right Column: Services List -->
                         <div class="card">
-                            <h3 class="card-title" style="margin-bottom:15px;"><i class="fa-solid fa-list-check"></i> Live Services List</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                                <h3 class="card-title" style="margin:0;"><i class="fa-solid fa-list-check"></i> Live Services List</h3>
+                                <div style="position: relative; width: 250px; max-width: 100%;">
+                                    <i class="fa-solid fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                                    <input type="text" id="srvSearchInput" onkeyup="searchBackendServices()" placeholder="Search services by title..." style="width: 100%; padding: 10px 15px 10px 40px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: #fff; border-radius: 20px; outline: none; font-size: 0.9rem;">
+                                </div>
+                            </div>
                             <div class="table-responsive">
                                 <table style="width:100%;">
                                     <thead>
