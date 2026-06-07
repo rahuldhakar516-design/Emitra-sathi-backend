@@ -1959,3 +1959,45 @@ window.clearOpenAiKey = function() {
     try { new BroadcastChannel('cyberSync').postMessage({ type: 'UPDATE_AI_KEY', data: null }); } catch(err) {}
     showToast("OpenAI API Key removed successfully!", "info");
 };
+
+// --- MOBILE RESPONSIVE SIDEBAR TOGGLE ---
+document.addEventListener('DOMContentLoaded', () => {
+    const backendSidebarToggle = document.getElementById('backendSidebarToggle');
+    const backendSidebarClose = document.getElementById('backendSidebarClose');
+    const backendSidebarBackdrop = document.getElementById('backendSidebarBackdrop');
+    const sidebar = document.querySelector('.sidebar');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (backendSidebarToggle && sidebar && backendSidebarBackdrop) {
+        backendSidebarToggle.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            backendSidebarBackdrop.classList.add('active');
+        });
+    }
+
+    const closeSidebar = () => {
+        if (sidebar && backendSidebarBackdrop) {
+            sidebar.classList.remove('active');
+            backendSidebarBackdrop.classList.remove('active');
+        }
+    };
+
+    if (backendSidebarClose) {
+        backendSidebarClose.addEventListener('click', closeSidebar);
+    }
+
+    if (backendSidebarBackdrop) {
+        backendSidebarBackdrop.addEventListener('click', closeSidebar);
+    }
+
+    // Close sidebar when clicking a nav link on mobile
+    if (navLinks) {
+        navLinks.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1024) {
+                if (e.target.tagName === 'LI' || e.target.closest('li')) {
+                    setTimeout(closeSidebar, 200);
+                }
+            }
+        });
+    }
+});
